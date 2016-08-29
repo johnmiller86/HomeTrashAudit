@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.chefj.hometrashaudit" >
+    package="com.johnmillercoding.hometrashaudit">
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name="com.johnmillercoding.hometrashaudit.services.VolleyController"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
-            android:name=".HomeScreenActivity"
+            android:name="com.johnmillercoding.hometrashaudit.activities.LoginActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,37 +22,29 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".HomeTrashAuditActivity"
+            android:name="com.johnmillercoding.hometrashaudit.activities.HomeScreenActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name="com.johnmillercoding.hometrashaudit.activities.HomeTrashAuditActivity"
             android:label="New Audit"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan" >
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".JournalActivity"
+            android:name="com.johnmillercoding.hometrashaudit.activities.JournalActivity"
             android:label="Your Journal"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".TotalsActivity"
+            android:name="com.johnmillercoding.hometrashaudit.activities.TotalsActivity"
             android:label="Totals"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".DateActivity"
-            android:label="Date Selection"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name=".WasteSelectionActivity"
+            android:name="com.johnmillercoding.hometrashaudit.activities.WasteSelectionActivity"
             android:label="Waste Selection"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <activity
-            android:name=".FirstTimeActivity"
+            android:name="com.johnmillercoding.hometrashaudit.activities.FirstTimeActivity"
             android:label="Unit Selection"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>
