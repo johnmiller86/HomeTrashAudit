@@ -44,7 +44,8 @@
         android:background="@drawable/button"
         android:textSize="20sp"
         android:layout_marginTop="88dp"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:labelFor="@+id/amountField"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -67,7 +68,8 @@
         android:background="@drawable/button"
         android:layout_toEndOf="@+id/categoryTextView"
         android:minHeight="40dp"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:textAlignment="center"/>
 
     <Spinner
         android:layout_width="wrap_content"
@@ -79,7 +81,8 @@
         android:layout_alignStart="@+id/materialSpinner"
         android:minHeight="40dp"
         android:layout_alignEnd="@+id/materialSpinner"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:textAlignment="center"/>
 
     <EditText
         android:layout_width="wrap_content"

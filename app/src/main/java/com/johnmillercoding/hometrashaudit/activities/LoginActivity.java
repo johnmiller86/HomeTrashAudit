@@ -3,6 +3,7 @@ package com.johnmillercoding.hometrashaudit.activities;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -36,7 +37,7 @@ public class LoginActivity extends Activity {
     private EditText inputEmail;
     private EditText inputPassword;
     private ProgressDialog pDialog;
-    private SessionManager session;
+    public static SessionManager session;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,6 +47,7 @@ public class LoginActivity extends Activity {
         inputEmail = (EditText) findViewById(R.id.email);
         inputPassword = (EditText) findViewById(R.id.password);
         final Button btnLogin = (Button) findViewById(R.id.btnLogin);
+        final Button btnRegister = (Button) findViewById(R.id.btnRegister);
 
         // Progress dialog
         pDialog = new ProgressDialog(this);
@@ -96,6 +98,16 @@ public class LoginActivity extends Activity {
                     return true;
                 }
                 return false;
+            }
+        });
+
+        // Register button Click Event
+        btnRegister.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View view) {
+                Uri uri = Uri.parse("https://www.johnmillercoding.com/Brandywine_Garbology/login/register.php");
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
             }
         });
     }

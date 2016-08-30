@@ -6,7 +6,7 @@ public class Config {
     public static final String URL_LOGIN = "https://www.johnmillercoding.com/Brandywine_Garbology/login/app_login.php";
 
     // Server get url
-
+    public static final String URL_FETCH = "https://www.johnmillercoding.com/Brandywine_Garbology/login/fetcher.php";
     // Server insert url
 
     // Server update url

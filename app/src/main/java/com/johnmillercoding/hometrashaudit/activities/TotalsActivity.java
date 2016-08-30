@@ -7,22 +7,20 @@
 
 package com.johnmillercoding.hometrashaudit.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.johnmillercoding.hometrashaudit.R;
-import com.johnmillercoding.hometrashaudit.services.SessionManager;
-import com.johnmillercoding.hometrashaudit.waste.Bio;
-import com.johnmillercoding.hometrashaudit.waste.Glass;
-import com.johnmillercoding.hometrashaudit.waste.Metal;
-import com.johnmillercoding.hometrashaudit.waste.Paper;
-import com.johnmillercoding.hometrashaudit.waste.Plastic;
-import com.johnmillercoding.hometrashaudit.waste.Waste;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.Entry;
@@ -32,18 +30,28 @@ import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.johnmillercoding.hometrashaudit.R;
+import com.johnmillercoding.hometrashaudit.services.Config;
+import com.johnmillercoding.hometrashaudit.services.VolleyController;
+import com.johnmillercoding.hometrashaudit.waste.Bio;
+import com.johnmillercoding.hometrashaudit.waste.Glass;
+import com.johnmillercoding.hometrashaudit.waste.Metal;
+import com.johnmillercoding.hometrashaudit.waste.Paper;
+import com.johnmillercoding.hometrashaudit.waste.Plastic;
+import com.johnmillercoding.hometrashaudit.waste.Waste;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.text.DateFormat;
-import java.text.ParseException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TotalsActivity extends AppCompatActivity
 {
     // Variable Declarations
-    private ArrayList<Waste> wasteList;
+    private final ArrayList<Waste> wasteList = new ArrayList<>();
     private ArrayList<Plastic> plasRec = new ArrayList<>();
     private ArrayList<Plastic> plasNonRec = new ArrayList<>();
     private ArrayList<Plastic> plasFilm = new ArrayList<>();
@@ -60,11 +68,12 @@ public class TotalsActivity extends AppCompatActivity
     private final ArrayList<Entry> amounts = new ArrayList<>();
     private final ArrayList<String> combinations = new ArrayList<>();
     private PieChart chart;
-    private final DateFormat df = DateFormat.getDateInstance(DateFormat.DEFAULT);
     private String units;
 
     // Session Manager
-    private SessionManager session;
+    //private SessionManager session;
+    private static final String TAG = LoginActivity.class.getSimpleName();
+    private ProgressDialog pDialog;
 
     //Options Menu
     @Override
@@ -88,28 +97,21 @@ public class TotalsActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_totals);
 
-        // Instantiating Session
-        session = new SessionManager(getApplicationContext());
-
+        // Instantiating Chart
         chart = new PieChart(this);
 
         // Getting units
-//        try
-//        {
-//            //File settingsFile = getBaseContext().getFileStreamPath("Settings.txt");
-//            //Scanner reader = new Scanner(settingsFile);
-//            //units = reader.nextLine();
-//            //reader.close();
-//        }
-//        catch (FileNotFoundException e)
-//        {
-//            e.printStackTrace();
-//        }
-        //units = session.getUnit();
+        units = LoginActivity.session.getUnit();
 
-        // Add chart
+        // Progress dialog
+        pDialog = new ProgressDialog(this);
+        pDialog.setCancelable(false);
+
+        fetchData();
+    }
+
+    private void addChart() {
         setContentView(chart);
 
         // Configure chart
@@ -164,10 +166,9 @@ public class TotalsActivity extends AppCompatActivity
         l.setYEntrySpace(5);
         l.setWordWrapEnabled(true);
     }
+
     private void addData()
     {
-        processTotals();
-
         // Splitting to load into chart
         for (Waste w : totalsList)
         {
@@ -236,7 +237,7 @@ public class TotalsActivity extends AppCompatActivity
     private void processTotals()
     {
         // Preparing
-        readInWasteList();
+        //fetchData();
 
         // Splitting
         splitList();
@@ -399,82 +400,8 @@ public class TotalsActivity extends AppCompatActivity
             }
             totalsList.add(new Waste(date, material, category, total));
         }
-    }
-
-    /**
-     * Reads into the wasteList from the file.
-     */
-    private void readInWasteList()
-    {
-        ArrayList<String> lines = new ArrayList<>();
-        String date = "";
-        wasteList = new ArrayList<>();
-
-        // Reading in file
-        try
-        {
-            File journalFile = getBaseContext().getFileStreamPath("Journal.txt");
-            Scanner reader = new Scanner(journalFile);
-
-            // Reading File
-            while (reader.hasNextLine())
-            {
-                lines.add(reader.nextLine());
-            }
-        }
-        catch (FileNotFoundException ex)
-        {
-            // Do nothing, already handled.
-        }
-
-        // Processing information to fill list
-        for (String line : lines)
-        {
-            if (isDate(line))
-            {
-                date = line;
-            }
-
-            // Empty line
-            else if (line.equals("")){}
-
-            // Header
-            else if (line.contains("Material")){}
-
-            // Audit Separator
-            else if (line.contains("--")){}
-
-            // Process data
-            else
-            {
-                Waste waste = new Waste();
-                Scanner lineReader = new Scanner(line);
-                waste.setDate(date);
-                waste.setWasteMaterial(lineReader.next());
-                waste.setWasteCategory(lineReader.next());
-                waste.setAmount(lineReader.nextFloat());
-                wasteList.add(waste);
-                lineReader.close();
-            }
-        }
-    }
-
-    /**
-     * Determines if a line is a date.
-     * @param line the line to be evaluated.
-     * @return true or false.
-     */
-    private Boolean isDate(String line)
-    {
-        try
-        {
-            df.parse(line);
-            return true;
-        }
-        catch (ParseException e)
-        {
-            return false;
-        }
+        // Add chart
+        addChart();
     }
 
     /**
@@ -573,13 +500,109 @@ public class TotalsActivity extends AppCompatActivity
      * */
     private void logoutUser() {
 
-        session.setLoggedIn(false);
-        session.setUnit("");
-        session.setUsername("");
+        LoginActivity.session.setLoggedIn(false);
+        LoginActivity.session.setUnit("");
+        LoginActivity.session.setUsername("");
 
         // Launching the login activity
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    /**
+     * function to verify login details in mysql db
+     * */
+    private void fetchData() {
+
+        // Tag used to cancel the request
+        String tag_string_req = "req_waste_list";
+
+        pDialog.setMessage("Fetching...");
+        showDialog();
+
+        StringRequest strReq = new StringRequest(Request.Method.POST,
+                Config.URL_FETCH, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                //response = response.replace("\\", "");
+                Log.d(TAG, "Fetch Response: " + response);
+                hideDialog();
+
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    boolean error = jsonObject.getBoolean("error");
+
+                    // Retrieve JSON
+                    JSONArray jsonArray = jsonObject.getJSONArray("response");
+                    //Iterator<String> iterator = jsonObject.keys();
+
+                    // Check for error node in json
+                    if (!error) {
+                        for (int i = 0; i < jsonArray.length(); i++) {
+
+                            JSONObject row = jsonArray.getJSONObject(i);
+
+                            // Data retrieved
+                            String date = row.getString("date");
+                            String material = row.getString("material");
+                            String category = row.getString("category");
+                            double amount = row.getDouble("amount");
+
+                            // Add to List
+                            Waste waste = new Waste();
+                            waste.setDate(date);
+                            waste.setWasteMaterial(material);
+                            waste.setWasteCategory(category);
+                            waste.setAmount((float)amount);
+                            wasteList.add(waste);
+                        }
+                    } else {
+                        // Error fetching data. Get the error message
+                        String errorMsg = jsonObject.getString("error_msg");
+                        Toast.makeText(getApplicationContext(),
+                                errorMsg, Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    // JSON error
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+                // List filled process totals
+                processTotals();
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+                hideDialog();
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Posting parameters to login url
+                Map<String, String> params = new HashMap<>();
+                params.put("username", LoginActivity.session.getUsername());
+                return params;
+            }
+        };
+
+        // Adding request to request queue
+        VolleyController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
+
+    private void showDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+
+    private void hideDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
     }
 }

@@ -14,9 +14,6 @@ public class SessionManager {
 
     private final Editor editor;
 
-    // Shared pref mode
-    private final int PRIVATE_MODE = 0;
-
     // Shared preferences file name
     private static final String PREF_NAME = "HomeTrashAudit";
 
@@ -25,8 +22,8 @@ public class SessionManager {
     private static final String KEY_UNIT = "unit";
 
     public SessionManager(Context context) {
-        Context _context = context;
-        pref = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
+        int PRIVATE_MODE = 0;
+        pref = context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
         editor = pref.edit();
         editor.apply();
     }
