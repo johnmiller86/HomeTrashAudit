@@ -126,6 +126,6 @@ public class Waste
     @Override
     public String toString()
     {
-        return this.getWasteMaterial()+ "    " + this.getWasteCategory()+ "    " + this.getAmount() + "    " + this.getPercentage();
+        return this.getDate() + " " + this.getWasteMaterial()+ " " + this.getWasteCategory()+ " " + this.getAmount() + " " + this.getPercentage();
     }
 }

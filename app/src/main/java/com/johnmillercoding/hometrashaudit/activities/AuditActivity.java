@@ -41,7 +41,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
 
-public class HomeTrashAuditActivity extends AppCompatActivity {
+public class AuditActivity extends AppCompatActivity {
 
     // Variable Declarations
     static ListView listView;
@@ -109,7 +109,7 @@ public class HomeTrashAuditActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home_trash_audit);
+        setContentView(R.layout.activity_audit);
 
         // Instantiating Session
         session = new SessionManager(getApplicationContext());
@@ -151,13 +151,13 @@ public class HomeTrashAuditActivity extends AppCompatActivity {
             {
                 // Empty Journal
                 if (items.size() == 0) {
-                    Toast.makeText(HomeTrashAuditActivity.this, "You must first complete an audit before adding to Journal!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AuditActivity.this, "You must first complete an audit before adding to Journal!!!", Toast.LENGTH_SHORT).show();
                 }
 
                 // Checking if audit exists for selected date
                 else if (dateExists())
                 {
-                    Toast.makeText(HomeTrashAuditActivity.this, "An audit for this date has already been completed!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AuditActivity.this, "An audit for this date has already been completed!!!", Toast.LENGTH_SHORT).show();
                 }
 
                 // Appending Journal
@@ -191,7 +191,7 @@ public class HomeTrashAuditActivity extends AppCompatActivity {
                         output.close();
 
                         // Confirmation
-                        Toast.makeText(HomeTrashAuditActivity.this, "The journal was successfully updated!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AuditActivity.this, "The journal was successfully updated!", Toast.LENGTH_SHORT).show();
 
                         // Resetting for additional audits
                         items = new ArrayList<>();

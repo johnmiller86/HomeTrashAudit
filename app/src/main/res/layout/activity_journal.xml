@@ -8,35 +8,11 @@
     android:background="@drawable/broken_bark"
     tools:context=".activities.JournalActivity">
 
-    <!--<ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/scrollView"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true" >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/journalTextView"
-            android:layout_alignTop="@+id/scrollView"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:background="#ffffff"
-            android:textSize="12dp"
-            android:typeface="monospace"/>
-    </ScrollView>-->
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/journalListView"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:background="#FFFFFF" />
+        android:background="#90B7E0"/>
 </RelativeLayout>

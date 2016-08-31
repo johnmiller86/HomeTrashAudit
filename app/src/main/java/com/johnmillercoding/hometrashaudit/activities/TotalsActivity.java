@@ -32,6 +32,7 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.johnmillercoding.hometrashaudit.R;
 import com.johnmillercoding.hometrashaudit.services.Config;
+import com.johnmillercoding.hometrashaudit.services.SessionManager;
 import com.johnmillercoding.hometrashaudit.services.VolleyController;
 import com.johnmillercoding.hometrashaudit.waste.Bio;
 import com.johnmillercoding.hometrashaudit.waste.Glass;
@@ -71,8 +72,8 @@ public class TotalsActivity extends AppCompatActivity
     private String units;
 
     // Session Manager
-    //private SessionManager session;
-    private static final String TAG = LoginActivity.class.getSimpleName();
+    private SessionManager session;
+    private static final String TAG = TotalsActivity.class.getSimpleName();
     private ProgressDialog pDialog;
 
     //Options Menu
@@ -102,7 +103,8 @@ public class TotalsActivity extends AppCompatActivity
         chart = new PieChart(this);
 
         // Getting units
-        units = LoginActivity.session.getUnit();
+        session = new SessionManager(getApplicationContext());
+        units = session.getUnit();
 
         // Progress dialog
         pDialog = new ProgressDialog(this);
@@ -236,9 +238,6 @@ public class TotalsActivity extends AppCompatActivity
      */
     private void processTotals()
     {
-        // Preparing
-        //fetchData();
-
         // Splitting
         splitList();
 
@@ -500,9 +499,9 @@ public class TotalsActivity extends AppCompatActivity
      * */
     private void logoutUser() {
 
-        LoginActivity.session.setLoggedIn(false);
-        LoginActivity.session.setUnit("");
-        LoginActivity.session.setUsername("");
+        session.setLoggedIn(false);
+        session.setUnit("");
+        session.setUsername("");
 
         // Launching the login activity
         Intent intent = new Intent(this, LoginActivity.class);
@@ -511,7 +510,7 @@ public class TotalsActivity extends AppCompatActivity
     }
 
     /**
-     * function to verify login details in mysql db
+     * function to fetch the waste list in mysql db
      * */
     private void fetchData() {
 
@@ -526,31 +525,32 @@ public class TotalsActivity extends AppCompatActivity
 
             @Override
             public void onResponse(String response) {
-                //response = response.replace("\\", "");
                 Log.d(TAG, "Fetch Response: " + response);
                 hideDialog();
 
                 try {
+
+                    // Retrieve JSON error object
                     JSONObject jsonObject = new JSONObject(response);
                     boolean error = jsonObject.getBoolean("error");
 
-                    // Retrieve JSON
+                    // Retrieve JSON response array
                     JSONArray jsonArray = jsonObject.getJSONArray("response");
-                    //Iterator<String> iterator = jsonObject.keys();
 
                     // Check for error node in json
                     if (!error) {
                         for (int i = 0; i < jsonArray.length(); i++) {
 
+                            // Retrieve individual JSON row objects
                             JSONObject row = jsonArray.getJSONObject(i);
 
-                            // Data retrieved
+                            // Storing columns
                             String date = row.getString("date");
                             String material = row.getString("material");
                             String category = row.getString("category");
                             double amount = row.getDouble("amount");
 
-                            // Add to List
+                            // Configure waste object and add to List
                             Waste waste = new Waste();
                             waste.setDate(date);
                             waste.setWasteMaterial(material);
@@ -561,8 +561,7 @@ public class TotalsActivity extends AppCompatActivity
                     } else {
                         // Error fetching data. Get the error message
                         String errorMsg = jsonObject.getString("error_msg");
-                        Toast.makeText(getApplicationContext(),
-                                errorMsg, Toast.LENGTH_LONG).show();
+                        Toast.makeText(TotalsActivity.this, errorMsg, Toast.LENGTH_LONG).show();
                     }
                 } catch (JSONException e) {
                     // JSON error
@@ -587,7 +586,7 @@ public class TotalsActivity extends AppCompatActivity
             protected Map<String, String> getParams() {
                 // Posting parameters to login url
                 Map<String, String> params = new HashMap<>();
-                params.put("username", LoginActivity.session.getUsername());
+                params.put("username", session.getUsername());
                 return params;
             }
         };

@@ -37,7 +37,7 @@ public class LoginActivity extends Activity {
     private EditText inputEmail;
     private EditText inputPassword;
     private ProgressDialog pDialog;
-    public static SessionManager session;
+    private SessionManager session;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

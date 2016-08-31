@@ -64,8 +64,8 @@ public class WasteSelectionActivity extends AppCompatActivity {
         session = new SessionManager(getApplicationContext());
 
         // Creating and Applying ListView Adapter
-        listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, HomeTrashAuditActivity.items);
-        HomeTrashAuditActivity.listView.setAdapter(listAdapter);
+        listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, AuditActivity.items);
+        AuditActivity.listView.setAdapter(listAdapter);
 
         // Adding Listener to the material Spinner
         materialSpinner = (Spinner) findViewById(R.id.materialSpinner);
@@ -97,15 +97,15 @@ public class WasteSelectionActivity extends AppCompatActivity {
                 }
 
                 // Updating existing rows
-                else if (rowExists(materialSpinner.getSelectedItem().toString(), categorySpinner.getSelectedItem().toString(), HomeTrashAuditActivity.items)) {
+                else if (rowExists(materialSpinner.getSelectedItem().toString(), categorySpinner.getSelectedItem().toString(), AuditActivity.items)) {
                     // Getting location of row
-                    int location = combinationFoundAt(materialSpinner.getSelectedItem().toString(), categorySpinner.getSelectedItem().toString(), HomeTrashAuditActivity.items);
+                    int location = combinationFoundAt(materialSpinner.getSelectedItem().toString(), categorySpinner.getSelectedItem().toString(), AuditActivity.items);
 
                     // Updating amount
-                    Waste w = HomeTrashAuditActivity.items.get(location);
+                    Waste w = AuditActivity.items.get(location);
                     w.setAmount(w.getAmount() + Float.parseFloat((amountField.getText().toString())));
-                    HomeTrashAuditActivity.items.set(location, w);
-                    setPercentages(HomeTrashAuditActivity.items);
+                    AuditActivity.items.set(location, w);
+                    setPercentages(AuditActivity.items);
                     listAdapter.notifyDataSetChanged();
                     finish();
                 }
@@ -117,8 +117,8 @@ public class WasteSelectionActivity extends AppCompatActivity {
                     w.setWasteMaterial(materialSpinner.getSelectedItem().toString());
                     w.setWasteCategory(categorySpinner.getSelectedItem().toString());
                     w.setAmount(Float.parseFloat(amountField.getText().toString()));
-                    HomeTrashAuditActivity.items.add(w);
-                    setPercentages(HomeTrashAuditActivity.items);
+                    AuditActivity.items.add(w);
+                    setPercentages(AuditActivity.items);
                     listAdapter.notifyDataSetChanged();
                     finish();
                 }
