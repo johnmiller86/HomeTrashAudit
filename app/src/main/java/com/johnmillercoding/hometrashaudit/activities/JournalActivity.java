@@ -72,6 +72,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -81,7 +82,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.johnmillercoding.hometrashaudit.R;
 import com.johnmillercoding.hometrashaudit.services.Config;
-import com.johnmillercoding.hometrashaudit.services.CustomAdapter;
 import com.johnmillercoding.hometrashaudit.services.SessionManager;
 import com.johnmillercoding.hometrashaudit.services.VolleyController;
 import com.johnmillercoding.hometrashaudit.waste.Waste;
@@ -101,8 +101,11 @@ public class JournalActivity extends AppCompatActivity {
     // Variable Declarations
     private final DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.DEFAULT);
     private final ArrayList<Waste> wasteList = new ArrayList<>();
-    private CustomAdapter adapter;
+    private ArrayAdapter adapter;
     private ListView listView;
+
+    // DB List
+    public static ArrayList<Waste> dbList = new ArrayList<>();
 
 
     // Session Manager
@@ -132,7 +135,7 @@ public class JournalActivity extends AppCompatActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.listview_context_menu, menu);
+        menuInflater.inflate(R.menu.journal_context_menu, menu);
     }
 
     // Context Item Selection
@@ -143,22 +146,43 @@ public class JournalActivity extends AppCompatActivity {
         switch(item.getItemId())
         {
             // Remove option
-            case R.id.remove:
+            case R.id.delete:
 
                 // Ensuring adapter is referencing the listView
-                adapter = new CustomAdapter(this);
+                adapter = new ArrayAdapter(this, R.layout.waste_list_item, wasteList);
                 listView.setAdapter(adapter);
 
-                // Removing item
-                //items.remove(info.position);
-                if (isDate(adapter.getItem(info.position))){
-                    wasteList.remove(info.position);
-                }
-                else{
-                    wasteList.remove(info.position);
-                }
-                adapter = new CustomAdapter(this);
-                configureAdapter();
+                // Adding to dbList
+                dbList.add(wasteList.get(info.position));
+
+                // Removing from list
+                wasteList.remove(info.position);
+
+                // Update adapter
+                adapter.notifyDataSetChanged();
+
+                // Update DB
+                performDelete();
+                return true;
+
+            // Remove option
+            case R.id.update:
+
+                // Ensuring adapter is referencing the listView
+                adapter = new ArrayAdapter(this, R.layout.waste_list_item, wasteList);
+                listView.setAdapter(adapter);
+
+                // Adding to dbList
+                dbList.add(wasteList.get(info.position));
+
+                // Removing from list
+                wasteList.remove(info.position);
+
+                // Update adapter
+                adapter.notifyDataSetChanged();
+
+                // Update DB
+                performDelete();
                 return true;
 
             // Default
@@ -177,9 +201,10 @@ public class JournalActivity extends AppCompatActivity {
 
         // Configuring ListView and Adapter
         listView = (ListView) findViewById(R.id.journalListView);
-        adapter = new CustomAdapter(this);
+        adapter = new ArrayAdapter(this, R.layout.waste_list_item, wasteList);
         assert listView != null;
         listView.setAdapter(adapter);
+        registerForContextMenu(listView);
 
         // Progress dialog
         pDialog = new ProgressDialog(this);
@@ -189,34 +214,6 @@ public class JournalActivity extends AppCompatActivity {
         fetchData();
     }
 
-    /**
-     * Displays the journal.
-     */
-    private void displayJournal() {
-        configureAdapter();
-        adapter.notifyDataSetChanged();
-    }
-
-    /**
-     * Adds date headers and data to the adapter.
-     */
-    public void configureAdapter(){
-        String date = wasteList.get(0).getDate();
-        adapter.addSectionHeaderItem(date);
-        adapter.addItem(wasteList.get(0).getWasteMaterial() + " " + wasteList.get(0).getWasteCategory()
-        + " " + wasteList.get(0).getAmount());
-        for (Waste waste : wasteList){
-            if (waste.getDate().equals(date)){
-                adapter.addItem(waste.getWasteMaterial() + " " + waste.getWasteCategory()
-                        + " " + waste.getAmount());
-            }else{
-                date = waste.getDate();
-                adapter.addSectionHeaderItem(waste.getDate());
-                adapter.addItem(waste.getWasteMaterial() + " " + waste.getWasteCategory()
-                        + " " + waste.getAmount());
-            }
-        }
-    }
 
     /**
      * Logging out the user. Will set isLoggedIn flag to false in shared
@@ -293,8 +290,8 @@ public class JournalActivity extends AppCompatActivity {
                     e.printStackTrace();
                     Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
-                // List filled process totals
-                displayJournal();
+                // List filled update ListView
+                adapter.notifyDataSetChanged();
             }
         }, new Response.ErrorListener() {
 
@@ -320,6 +317,69 @@ public class JournalActivity extends AppCompatActivity {
         VolleyController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
+    /**
+     * function to fetch the waste list in mysql db
+     * */
+    private void performDelete() {
+
+        // Tag used to cancel the request
+        String tag_string_req = "req_delete";
+
+        pDialog.setMessage("Deleting...");
+        showDialog();
+
+        StringRequest strReq = new StringRequest(Request.Method.POST,
+                Config.URL_DELETE, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "Delete Response: " + response);
+                hideDialog();
+                dbList.clear();
+                Toast.makeText(JournalActivity.this, response, Toast.LENGTH_LONG).show();
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    boolean error = jsonObject.getBoolean("error");
+
+                    // Check for error node in json
+                    if (!error) {
+                        // Delete successful
+                        Toast.makeText(JournalActivity.this, "Deleted from Database", Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    // JSON error
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+                hideDialog();
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Posting parameters to login url
+                Map<String, String> params = new HashMap<>();
+                for (Waste waste : dbList){
+                    params.put("username", session.getUsername());
+                    params.put("date", waste.getDate());
+                    params.put("material", waste.getWasteMaterial());
+                    params.put("category", waste.getWasteCategory());
+                }
+                return params;
+            }
+        };
+
+        // Adding request to request queue
+        VolleyController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
     /**
      * Shows the progress dialog.
      */

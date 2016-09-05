@@ -14,5 +14,7 @@
         android:id="@+id/journalListView"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:background="#90B7E0"/>
+        android:background="#90B7E0"
+        android:drawSelectorOnTop="false"
+        android:listSelector="@android:color/darker_gray"/>
 </RelativeLayout>

@@ -67,4 +67,6 @@
     <string name="btn_login">LOGIN</string>
     <string name="logout">Logout</string>
     <string name="don_t_have_an_account_register_here">Don\'t have an account? Register here!</string>
+    <string name="update">Update</string>
+    <string name="delete">Delete</string>
 </resources>

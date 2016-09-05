@@ -12,4 +12,5 @@ public class Config {
     // Server update url
 
     // Server delete url
+    public static final String URL_DELETE = "https://www.johnmillercoding.com/Brandywine_Garbology/login/delete.php";
 }
